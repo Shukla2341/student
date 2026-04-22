@@ -8,23 +8,29 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// ✅ Middleware
+app.use(cors({
+  origin: "*", // you can restrict later to your Vercel URL
+}));
 app.use(express.json());
 
-// Root route
+// ✅ Root route (fixes "Cannot GET /")
 app.get("/", (req, res) => {
-  res.send("API is running 🚀");
+  res.send("Backend is running 🚀");
 });
 
-// MongoDB connect
+// ✅ MongoDB connection with error handling
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+  .catch(err => {
+    console.error("MongoDB Error:", err.message);
+    process.exit(1); // stop server if DB fails
+  });
 
-// Routes
+// ✅ API routes
 app.use("/api", routes);
 
-// Port fix
+// ✅ PORT FIX (important for Render)
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
